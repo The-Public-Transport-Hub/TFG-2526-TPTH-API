@@ -2,8 +2,8 @@ import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { errorResponseSchema } from "../../../../../shared/http/schemas/error.schema";
 import { stopsResponseSchema } from "../schemas/response.schema";
 import { mongoStopsRepository } from "../../db/repositories/stop.repository";
-import { paginationQuerySchema } from "../../../../../shared/http/schemas/pagination.schema";
-import { PageRequest } from "../../../../../shared/domain/pagination";
+import { querySchema } from "../../../../../shared/http/schemas/query.schema";
+import { Request } from "../../../../../shared/domain/models/request";
 import { getStops } from "../../../aplication/use-case/get-stops-use-case";
 
 const getStopsRoute = new OpenAPIHono();
@@ -13,7 +13,7 @@ const findStopsRoute = createRoute({
   path: "/",
   tags: ["Stops"],
   request: {
-    query: paginationQuerySchema.openapi({
+    query: querySchema.openapi({
       example: 1,
       description: "Page number for paginated results",
     }),
@@ -40,12 +40,13 @@ const findStopsRoute = createRoute({
 
 getStopsRoute.openapi(findStopsRoute, async (c) => {
   try {
-    const { page } = c.req.valid("query");
+    const { page, q } = c.req.valid("query");
     const limit = 20;
 
-    const pageRequest: PageRequest = {
+    const pageRequest: Request = {
       skip: (page - 1) * limit,
-      limit: limit
+      limit: limit,
+      search: q
     }
 
     const { items, total } = await getStops(

@@ -1,6 +1,5 @@
 import { getDB } from "../../../../../shared/database/mongodb";
 import { LinesRepository } from "../../../domain/ports/lines.repository";
-import { escapeRegex } from "../../../../../shared/utils/regex";
 
 export const mongoLinesRepository: LinesRepository = {
   async upsertLines(lines) {
@@ -28,28 +27,17 @@ export const mongoLinesRepository: LinesRepository = {
     };
   },
 
-  async findLines(request) {
+  async findLines(page) {
     const db = getDB();
     const col = db.collection("lines");
 
-    const search = request.search?.trim();
-
-    const filter = search
-      ? {
-          $or: [
-            { number: { $regex: escapeRegex(search), $options: "i" } },
-            { name: { $regex: escapeRegex(search), $options: "i" } },
-          ],
-        }
-      : {};
-
     const docs = await col
-      .find(filter)
+      .find({})
       .project({ _id: 0, number: 1, name: 1 })
-      .skip(request.skip)
-      .limit(request.limit)
+      .skip(page.skip)
+      .limit(page.limit)
       .toArray();
-    const total = await col.countDocuments(filter);
+    const total = await col.countDocuments();
 
     return {
       items: docs.map((doc) => ({

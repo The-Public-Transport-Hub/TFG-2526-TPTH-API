@@ -1,6 +1,6 @@
 import { getDB } from "../../../../../shared/database/mongodb";
 import { StopRepository } from "../../../domain/ports/stop.repository";
-
+import { escapeRegex } from "../../../../../shared/utils/regex";
 
 export const mongoStopsRepository: StopRepository = {
   async upsertStops(stops) {
@@ -28,17 +28,28 @@ export const mongoStopsRepository: StopRepository = {
     };
   },
 
-  async findStops(page) {
+  async findStops(request) {
     const db = getDB();
     const col = db.collection("stops");
 
+    const search = request.search?.trim();
+
+    const filter = search
+      ? {
+          $or: [
+            { code: { $regex: escapeRegex(search), $options: "i" } },
+            { name: { $regex: escapeRegex(search), $options: "i" } },
+          ],
+        }
+      : {};
+
     const docs = await col
-      .find({})
+      .find(filter)
       .project({ _id: 0, code: 1, name: 1 })
-      .skip(page.skip)
-      .limit(page.limit)
+      .skip(request.skip)
+      .limit(request.limit)
       .toArray();
-    const total = await col.countDocuments();
+    const total = await col.countDocuments(filter);
 
     return {
       items: docs.map((doc) => ({
@@ -53,7 +64,7 @@ export const mongoStopsRepository: StopRepository = {
     const db = getDB();
     const col = db.collection("stops");
 
-    const doc = await col.findOne({ code })
+    const doc = await col.findOne({ code });
 
     if (!doc) {
       return null;
@@ -65,7 +76,7 @@ export const mongoStopsRepository: StopRepository = {
       latitude: doc.latitude,
       longitude: doc.longitude,
       lines: [],
-      arrivals: [] ,
-    }
-  }
-}
+      arrivals: [],
+    };
+  },
+};

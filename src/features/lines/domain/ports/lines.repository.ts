@@ -1,9 +1,9 @@
 import { Line } from "../models/line.model";
 import { LineResponse } from "../models/line-response.model";
-import { UpsertResult } from "../../../../shared/domain/result";
-import { Page, PageRequest } from "../../../../shared/domain/pagination";
+import { UpsertResult } from "../../../../shared/domain/models/result";
+import { Page, Request } from "../../../../shared/domain/models/request";
 
 export interface LinesRepository {
   upsertLines(lines: Line[]): Promise<UpsertResult>;
-  findLines(page: PageRequest): Promise<Page<LineResponse>>;
+  findLines(request: Request): Promise<Page<LineResponse>>;
 }
