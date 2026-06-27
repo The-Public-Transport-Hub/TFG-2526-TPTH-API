@@ -1,13 +1,5 @@
 import { z } from "@hono/zod-openapi";
 import { linesSchema } from "./line.schema";
-import { paginationSchema } from "../../../../../shared/http/schemas/query.schema";
-
-// export const lineDetailResponseSchema = z
-//   .object({
-//     ok: z.literal(true),
-//     data: lineDirectionDetailSchema,
-//   })
-//   .openapi("Line Detail Response Schema");
 
 export const linesResponseSchema = z
   .object({

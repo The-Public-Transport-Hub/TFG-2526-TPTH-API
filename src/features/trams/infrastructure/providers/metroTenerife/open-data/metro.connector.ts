@@ -1,36 +1,53 @@
 import { ExternalTramsLines, externalTramsLinesSchema } from "./metro.schema";
 import { provider, tramLinesOpenDataUrl } from "../config";
 import { Tram } from "../../../../domain/models/tram.model";
-import { TramLinesProvider } from "../../../../domain/ports/tram-provider.repository";
+import { TramsProvider } from "../../../../domain/ports/tram-provider.repository";
 
 async function fetchProviderLines(): Promise<ExternalTramsLines> {
-  const response = await fetch(tramLinesOpenDataUrl)
+  const response = await fetch(tramLinesOpenDataUrl);
 
   if (!response.ok) {
-       throw new Error(`Open Data error: ${response.status}`)
+    throw new Error(`Open Data error: ${response.status}`);
   }
 
-  const data = await response.json()
+  const data = await response.json();
 
-  return externalTramsLinesSchema.parse(data)
+  return externalTramsLinesSchema.parse(data);
 }
 
 function convertProviderLines(providerLines: ExternalTramsLines): Tram[] {
-  const tramLines: Tram[] = providerLines.features.map((feature) => ({
-    number: feature.properties.linea_id,
-    name: feature.properties.linea_nombre,
-    provider: provider,
-    directions: [],
-    syncedAt: new Date().toISOString()
-  }));
+  const syncedAt = new Date().toISOString();
 
-  return tramLines
+  const lineIds = [
+    ...new Set(
+      providerLines.features.map((feature) => feature.properties.linea_id),
+    ),
+  ];
+
+  return lineIds.map((lineId) => {
+    const features = providerLines.features.filter(
+      (feature) => feature.properties.linea_id === lineId,
+    );
+
+    const firstFeature = features[0];
+
+    return {
+      number: firstFeature.properties.linea_id,
+      name: firstFeature.properties.linea_descripcion.trim().toUpperCase(),
+      provider,
+      syncedAt,
+      directions: features.map((feature, index) => ({
+        direction: index === 0 ? "outbound" : "inbound",
+        destination: feature.properties.linea_parada_fin.trim().toUpperCase(),
+        stops: [],
+      })),
+    };
+  });
 }
 
-
-export const metroLinesProvider: TramLinesProvider = {
-  async getTramLines() {
+export const metroLinesProvider: TramsProvider = {
+  async getTrams() {
     const providerLines = await fetchProviderLines();
     return convertProviderLines(providerLines);
-  }
-}
+  },
+};

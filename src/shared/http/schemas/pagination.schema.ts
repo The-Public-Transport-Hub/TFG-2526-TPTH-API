@@ -9,7 +9,7 @@ export const paginationSchema = z
   })
   .openapi("Pagination");
 
-export const querySchema = z
+export const paginationQuerySchema = z
   .object({
     page: z.coerce
       .number()
@@ -22,16 +22,5 @@ export const querySchema = z
         },
         example: "1",
       }),
-    q: z.string().trim().min(1).max(80).optional()      .openapi({
-        param: {
-          name: "q",
-          in: "query",
-        },
-        example: "108",
-      }),
   })
-  .openapi("Query Params");
-
-export const searchQuerySchema = z.object({
-  q: z.string().trim().min(1).max(80).optional(),
-});
+  .openapi("Pagination Query");

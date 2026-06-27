@@ -1,20 +1,20 @@
-export type Direction = "outbound" | "inbound"
+export type Direction = "outbound" | "inbound";
 
-export type tramStopRef = {
-  code: string,
-  order: number,
-}
+export type TramStopRef = {
+  code: string;
+  order: number;
+};
 
 export type TramDirection = {
-  direction: Direction,
-  destination: string,
-  stops: tramStopRef[],
-}
+  direction: Direction;
+  destination: string;
+  stops: TramStopRef[];
+};
 
 export type Tram = {
-  number: string,
-  name: string,
-  provider: string,
-  directions: TramDirection[],
-  syncedAt: string,
-}
+  number: string;
+  name: string;
+  provider: string;
+  directions: TramDirection[];
+  syncedAt: string;
+};
