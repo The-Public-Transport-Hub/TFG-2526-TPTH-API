@@ -26,11 +26,22 @@ export function convertProviderLines(
       name: firstFeature.properties.linea_descripcion.trim().toUpperCase(),
       provider,
       syncedAt,
-      directions: features.map((feature, index) => ({
-        direction: index === 0 ? "outbound" : "inbound",
-        destination: feature.properties.linea_parada_fin.trim().toUpperCase(),
-        stops: buildDirectionStops(feature.geometry.coordinates, providerStops),
-      })),
+      directions: features.map((feature, index) => {
+        const stops = buildDirectionStops(
+          feature.geometry.coordinates,
+          providerStops,
+        );
+        const orderedStops = index === 0 ? stops : [...stops].reverse();
+
+        return {
+          direction: index === 0 ? "outbound" : "inbound",
+          destination: feature.properties.linea_parada_fin.trim().toUpperCase(),
+          stops: orderedStops.map((stop, index) => ({
+            ...stop,
+            order: index + 1,
+          })),
+        };
+      }),
     };
   });
 }
