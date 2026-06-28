@@ -7,4 +7,16 @@ export const tramSchema = z.object({
 
 export const tramsSchema = z.array(tramSchema).openapi('Trams')
 
-export type Trams = z.infer<typeof tramSchema>
+export const tramStopSchema = z.object({
+  id: z.string().openapi({ example: "INT" }),
+  name: z.string().openapi({ example: "INTERCAMBIADOR" }),
+  order: z.number().openapi({ example: 1 }),
+}).openapi("Tram Stop");
+
+export const tramDetailSchema = z.object({
+  id: z.string().openapi({ example: "L1" }),
+  name: z.string().openapi({ example: "SANTA CRUZ - LA LAGUNA" }),
+  direction: z.enum(["outbound", "inbound"]),
+  destination: z.string().openapi({ example: "TRINIDAD" }),
+  stops: z.array(tramStopSchema),
+});

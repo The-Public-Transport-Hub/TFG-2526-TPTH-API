@@ -2,6 +2,7 @@ export type Direction = "outbound" | "inbound";
 
 export type TramStopRef = {
   code: string;
+  name: string;
   order: number;
 };
 

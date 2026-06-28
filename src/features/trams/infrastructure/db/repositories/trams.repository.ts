@@ -1,6 +1,8 @@
 import { getDB } from "../../../../../shared/database/mongodb";
 import { TramRepository } from "../../../domain/ports/tram.repository";
+import { TramDocument } from "../schemas/tram-document.schema";
 import { escapeRegex } from "../../../../../shared/utils/regex";
+
 
 export const mongoTramsRepository: TramRepository = {
   async upsertTrams(trams) {
@@ -53,5 +55,36 @@ export const mongoTramsRepository: TramRepository = {
       id: doc.number,
       name: doc.name,
     }));
+  },
+
+  async findTramById(id, direction) {
+    const db = getDB();
+    const col = db.collection<TramDocument>("trams");
+
+    const doc = await col.findOne({ number: id });
+
+    if (!doc) {
+      return null;
+    }
+
+    const selectedDirection = doc.directions.find(
+      (item) => item.direction === direction,
+    );
+
+    if (!selectedDirection) {
+      return null;
+    }
+
+    return {
+      id: doc.number,
+      name: doc.name,
+      direction: selectedDirection.direction,
+      destination: selectedDirection.destination,
+      stops: selectedDirection.stops.map((stop) => ({
+        id: stop.code,
+        name: stop.name,
+        order: stop.order,
+      })),
+    };
   },
 };

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const tramStopRefDocumentSchema = z.object({
   code: z.string(),
+  name: z.string(),
   order: z.number(),
 });
 
