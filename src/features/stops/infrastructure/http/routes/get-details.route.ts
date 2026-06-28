@@ -9,7 +9,7 @@ const getDetailsRoute = new OpenAPIHono();
 
 const findDetailsRoute = createRoute({
   method: "get",
-  path: "/{id}",
+  path: "/bus/{id}",
   tags: ["Stops"],
   request: {
     params: StopParamsSchema,

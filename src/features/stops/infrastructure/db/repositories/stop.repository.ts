@@ -34,14 +34,17 @@ export const mongoStopsRepository: StopRepository = {
 
     const search = request.search?.trim();
 
-    const filter = search
-      ? {
-          $or: [
-            { code: { $regex: escapeRegex(search), $options: "i" } },
-            { name: { $regex: escapeRegex(search), $options: "i" } },
-          ],
-        }
-      : {};
+    const filter = {
+      ...(request.provider ? { provider: request.provider } : {}),
+      ...(search
+        ? {
+            $or: [
+              { code: { $regex: escapeRegex(search), $options: "i" } },
+              { name: { $regex: escapeRegex(search), $options: "i" } },
+            ],
+          }
+        : {}),
+    };
 
     const docs = await col
       .find(filter)
