@@ -24,30 +24,15 @@ async function fetchProviderTramStops(): Promise<ExternalTramStops> {
 async function fetchProviderTramStopsDetails(
   code: string,
 ): Promise<ExternalTramStopDetail> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
+  const response = await fetch(`${tramStopDetailsUrl}/${code}`);
 
-  try {
-    const response = await fetch(`${tramStopDetailsUrl}/${code}`, {
-      signal: controller.signal,
-      headers: {
-        Accept: "application/json, text/plain, */*",
-        "User-Agent": "Mozilla/5.0",
-        Referer: "https://tranviaonline.metrotenerife.com/",
-        Origin: "https://tranviaonline.metrotenerife.com",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Metro Tenerife stop info error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return externalTramStopDetailSchema.parse(data);
-  } finally {
-    clearTimeout(timeout);
+  if (!response.ok) {
+    throw new Error(`Metro Tenerife stop info error: ${response.status}`);
   }
+
+  const data = await response.json();
+
+  return externalTramStopDetailSchema.parse(data);
 }
 
 function convertProvierTramStops(providerStops: ExternalTramStops): Stop[] {
@@ -83,12 +68,7 @@ export const metroStopsProvider: StopsProvider = {
   },
 
   async getStopDetails(code) {
-    try {
-      const providerDetails = await fetchProviderTramStopsDetails(code);
-      return convertProviderTramStopDetails(providerDetails);
-    } catch (error) {
-      console.error("Metro Tenerife arrivals error", error);
-      return [];
-    }
+    const providerDetails = await fetchProviderTramStopsDetails(code);
+    return convertProviderTramStopDetails(providerDetails);
   },
 };
