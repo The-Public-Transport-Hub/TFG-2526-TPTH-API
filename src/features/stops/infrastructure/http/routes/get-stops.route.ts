@@ -43,7 +43,7 @@ const findBusStopsRoute = createRoute({
 const findTramStopsRoute = createRoute({
   method: "get",
   path: "/tram",
-  tags: ["Stops"],
+  tags: ["Trams"],
   request: {
     query: querySchema.openapi({
       example: 1,

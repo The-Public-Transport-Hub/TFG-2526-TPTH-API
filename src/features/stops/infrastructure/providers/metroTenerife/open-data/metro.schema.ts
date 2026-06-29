@@ -23,3 +23,22 @@ export const externalTramStopsSchema = z.object({
 });
 
 export type ExternalTramStops = z.infer<typeof externalTramStopsSchema>;
+
+export const externalTramStopDetailSchema = z.array(
+  z.object({
+    service: z.string(),
+    stop: z.string(),
+    stopSAE: z.number(),
+    destinationStop: z.string(),
+    stopDescription: z.string(),
+    destinationStopDescription: z.string(),
+    route: z.number(),
+    direction: z.number(),
+    lastUpdate: z.number(),
+    lastUpdateFormatted: z.string(),
+    remainingMinutes: z.number(),
+    orderStop: z.number(),
+  }),
+);
+
+export type ExternalTramStopDetail = z.infer<typeof externalTramStopDetailSchema>;
