@@ -31,8 +31,10 @@ async function fetchProviderTramStopsDetails(
     const response = await fetch(`${tramStopDetailsUrl}/${code}`, {
       signal: controller.signal,
       headers: {
-        Accept: "application/json",
-        "User-Agent": "TuGuaguaAPI/1.0",
+        Accept: "application/json, text/plain, */*",
+        "User-Agent": "Mozilla/5.0",
+        Referer: "https://tranviaonline.metrotenerife.com/",
+        Origin: "https://tranviaonline.metrotenerife.com",
       },
     });
 
