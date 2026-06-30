@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const lineStopRefDocumentSchema = z.object({
   code: z.string(),
+  name: z.string(),
   order: z.number(),
 });
 

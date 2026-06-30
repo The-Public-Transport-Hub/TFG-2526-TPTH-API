@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { linesSchema } from "./line.schema";
+import { linesSchema, lineDetailSchema } from "./line.schema";
 
 export const linesResponseSchema = z
   .object({
@@ -10,3 +10,10 @@ export const linesResponseSchema = z
     totalResults: z.number()
   })
   .openapi("Lines Response Schema");
+
+export const lineDetailResponseSchema = z
+  .object({
+    ok: z.literal(true),
+    data: lineDetailSchema,
+  })
+  .openapi("Line Detail Response Schema");

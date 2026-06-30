@@ -10,6 +10,8 @@ export const externalLinesSchema = z.object({
   ),
 })
 
+export type ExternalLines = z.infer<typeof externalLinesSchema>;
+
 export const externalLineItinerarySchema = z.object({
   success: z.boolean(),
   paradas: z.array(
@@ -21,4 +23,4 @@ export const externalLineItinerarySchema = z.object({
   ).nullable(),
 })
 
-export type ExternalLines = z.infer<typeof externalLinesSchema>;
+export type ExternalLineItinerary = z.infer<typeof externalLineItinerarySchema>;

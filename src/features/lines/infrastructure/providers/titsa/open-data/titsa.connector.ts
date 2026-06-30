@@ -1,96 +1,67 @@
-import { ExternalLines, externalLinesSchema } from "./titsa.schema"
-import { provider, linesOpenDataUrl, linesItineraryUrl } from "../config"
-import { Line } from "../../../../domain/models/line.model"
-import { LinesProvider } from "../../../../domain/ports/lines-provider.repository"
+import { LinesProvider } from "../../../../domain/ports/lines-provider.repository";
+import { Line, LineDirection } from "../../../../domain/models/line.model";
+import { lineDetailsRequestDelayMs } from "../config";
+import { fetchLineItinerary, fetchProviderLines } from "./titsa.fetcher";
+import {
+  convertLineItinerary,
+  convertProviderLinesWithoutDetails,
+} from "./titsa.converter";
 
-async function fetchProviderLines(): Promise<ExternalLines> {
-  const response = await fetch(linesOpenDataUrl)
-
-  if (!response.ok) {
-    throw new Error(`Open Data error: ${response.status}`)
-  }
-
-  const data = await response.json()
-  return externalLinesSchema.parse(data)
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function convertProviderLines(providerLines: ExternalLines) : Line[] {
-  const lines: Line[] =  providerLines.lineas.map((line) => ({
-    number: line.linea_numero.toString(),
-    name: line.linea_nombre,
-    provider: provider,
-    directions: [],
-    syncedAt: new Date().toISOString(),
-  }));
+async function getLineDirections(number: string): Promise<LineDirection[]> {
+  const directions: LineDirection[] = [];
 
-  return lines
+  const outbound = await fetchLineItinerary(number, "11");
+
+  if (outbound) {
+    directions.push(convertLineItinerary(outbound, "outbound"));
+  }
+
+  await sleep(lineDetailsRequestDelayMs);
+
+  const inbound = await fetchLineItinerary(number, "12");
+
+  if (inbound) {
+    directions.push(convertLineItinerary(inbound, "inbound"));
+  }
+
+  return directions;
+}
+
+async function addLineDetails(lines: Line[]): Promise<Line[]> {
+  const detailedLines: Line[] = [];
+
+  for (const [index, line] of lines.entries()) {
+    console.log(
+      `[lines-sync] ${index + 1}/${lines.length} line ${line.number}`,
+    );
+
+    const directions = await getLineDirections(line.number);
+
+    detailedLines.push({
+      ...line,
+      directions,
+    });
+
+    await sleep(lineDetailsRequestDelayMs);
+  }
+
+  console.log(
+    `[lines-sync] completed ${detailedLines.length}/${lines.length} lines`,
+  );
+  console.log("[lines-sync] sync finished successfully");
+
+  return detailedLines;
 }
 
 export const titsaLinesProvider: LinesProvider = {
   async getLines() {
     const providerLines = await fetchProviderLines();
-    return convertProviderLines(providerLines);
-  }
-}
+    const lines = convertProviderLinesWithoutDetails(providerLines).slice(0, 3);
 
-// async function getLineItinerary(number: string, trajectory: '11' | '12') {
-//   const params = new URLSearchParams({
-//     c: '1234',
-//     id_linea: number,
-//     id_trayecto: trajectory,
-//   })
-
-//   const response = await fetch(`${linesItineraryUrl}?${params.toString()}`)
-
-//   if (!response.ok) {
-//     throw new Error(`TITSA itinerary error: ${response.status}`)
-//   }
-
-//   const data = await response.json()
-//   const parsedData = externalLineItinerarySchema.parse(data)
-
-//   if (!parsedData.success || !parsedData.paradas) {
-//     return null
-//   }
-
-//   const lastStop = parsedData.paradas[parsedData.paradas.length - 1]
-//   const destination = parsedData.paradas.find(stop => stop.tipo === 'destino')?.nombre
-//     || lastStop?.nombre
-
-//   const stops = parsedData.paradas.map(stop => ({
-//     id: stop.codigo.toString(),
-//     name: stop.nombre,
-//   }))
-
-//   return {
-//     destination,
-//     stops,
-//   }
-// }
-
-// export async function getLineDetail(number: string) {
-//   const [outbound, inbound] = await Promise.all([
-//     getLineItinerary(number, '11'),
-//     getLineItinerary(number, '12'),
-//   ])
-
-//   if (!outbound && !inbound) {
-//     return null
-//   }
-
-//   const detail: Partial<LineDocument> = {
-//     detailSyncedAt: new Date().toISOString(),
-//   }
-
-//   if (outbound) {
-//     detail.destinationOutbound = outbound.destination
-//     detail.stopsOutbound = outbound.stops
-//   }
-
-//   if (inbound) {
-//     detail.destinationInbound = inbound.destination
-//     detail.stopsInbound = inbound.stops
-//   }
-
-//   return detail
-// }
+    return addLineDetails(lines);
+  },
+};

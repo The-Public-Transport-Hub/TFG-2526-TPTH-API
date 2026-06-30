@@ -1,6 +1,7 @@
 import { getDB } from "../../../../../shared/database/mongodb";
 import { LinesRepository } from "../../../domain/ports/lines.repository";
 import { escapeRegex } from "../../../../../shared/utils/regex";
+import { LineDocument } from "../schemas/line-document.schema";
 
 export const mongoLinesRepository: LinesRepository = {
   async upsertLines(lines) {
@@ -59,65 +60,29 @@ export const mongoLinesRepository: LinesRepository = {
       total,
     };
   },
+
+  async findLineDetails(number) {
+    const db = getDB();
+    const col = db.collection<LineDocument>("lines");
+
+    const doc = await col.findOne({ number });
+
+    if (!doc) {
+      return null;
+    }
+
+    return {
+      id: doc.number,
+      name: doc.name,
+      directions: doc.directions.map((direction) => ({
+        direction: direction.direction,
+        destination: direction.destination,
+        stops: direction.stops.map((stop) => ({
+          id: stop.code,
+          name: stop.name,
+          order: stop.order,
+        })),
+      })),
+    };
+  },
 };
-
-// export async function getLineByNumber(number: string) {
-//   const db = getDB()
-//   const col = db.collection('lines')
-
-//   const doc = await col.findOne({ number })
-
-//   if (!doc) {
-//     return null
-//   }
-
-//   return {
-//     number: doc.number,
-//     name: doc.name,
-//     provider: doc.provider,
-//     syncedAt: doc.syncedAt,
-//     destinationOutbound: doc.destinationOutbound,
-//     destinationInbound: doc.destinationInbound,
-//     stopsOutbound: doc.stopsOutbound,
-//     stopsInbound: doc.stopsInbound,
-//     detailSyncedAt: doc.detailSyncedAt,
-//   }
-// }
-
-// export async function getAllLinesWithDetail() {
-//   const db = getDB()
-//   const col = db.collection('lines')
-
-//   const docs = await col.find({}).toArray()
-
-//   return docs.map(doc => ({
-//     number: doc.number,
-//     name: doc.name,
-//     provider: doc.provider,
-//     syncedAt: doc.syncedAt,
-//     destinationOutbound: doc.destinationOutbound,
-//     destinationInbound: doc.destinationInbound,
-//     stopsOutbound: doc.stopsOutbound,
-//     stopsInbound: doc.stopsInbound,
-//     detailSyncedAt: doc.detailSyncedAt,
-//   }))
-// }
-
-// export async function updateLineDetail(number: string, detail: LineDetail) {
-//   const db = getDB()
-//   const col = db.collection('lines')
-
-//   await col.updateOne(
-//     { number },
-//     {
-//       $set: detail,
-//     }
-//   )
-// }
-
-// export async function countLines() {
-//   const db = getDB()
-//   const col = db.collection('lines')
-
-//   return col.countDocuments()
-// }
