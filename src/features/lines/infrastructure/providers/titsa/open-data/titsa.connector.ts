@@ -60,7 +60,7 @@ async function addLineDetails(lines: Line[]): Promise<Line[]> {
 export const titsaLinesProvider: LinesProvider = {
   async getLines() {
     const providerLines = await fetchProviderLines();
-    const lines = convertProviderLinesWithoutDetails(providerLines).slice(0, 3);
+    const lines = convertProviderLinesWithoutDetails(providerLines);
 
     return addLineDetails(lines);
   },

@@ -6,8 +6,29 @@ import { mongoLinesRepository } from "../../../../features/lines/infrastructure/
 
 const linesAdminRoutes = new Hono();
 
+let isSyncingLines = false;
+
 linesAdminRoutes.post("/sync/lines", async (c) => {
-  syncLines(titsaLinesProvider, mongoLinesRepository).catch(console.error);
+  if (isSyncingLines) {
+    return c.json(
+      {
+        ok: false as const,
+        error: {
+          code: "LINES_SYNC_ALREADY_RUNNING",
+          message: "Lines sync is already running",
+        },
+      },
+      409,
+    );
+  }
+
+  isSyncingLines = true;
+
+  syncLines(titsaLinesProvider, mongoLinesRepository)
+    .catch(console.error)
+    .finally(() => {
+      isSyncingLines = false;
+    });
 
   const response = adminResponseSchema.parse({
     ok: true,
