@@ -12,6 +12,7 @@ const findLinesRoute = createRoute({
   method: "get",
   path: "/",
   tags: ["Lines"],
+  summary: "List bus lines",
   request: {
     query: querySchema.openapi({
       example: 1,

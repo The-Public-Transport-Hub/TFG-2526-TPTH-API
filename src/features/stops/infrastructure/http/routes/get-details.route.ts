@@ -11,6 +11,7 @@ const findDetailsRoute = createRoute({
   method: "get",
   path: "/bus/{id}",
   tags: ["Stops"],
+  summary: "Get bus stop details",
   request: {
     params: StopParamsSchema,
   },

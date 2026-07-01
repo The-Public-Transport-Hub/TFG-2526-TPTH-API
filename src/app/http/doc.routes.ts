@@ -24,6 +24,10 @@ export function registerDocs(app: OpenAPIHono) {
         description: "Public transport stops.",
       },
       {
+        name: "Trams",
+        description: "Tram lines and tram stops.",
+      },
+      {
         name: "Health",
         description:
           "Operational endpoints used to check API and database availability.",

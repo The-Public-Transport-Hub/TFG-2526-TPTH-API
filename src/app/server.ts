@@ -21,7 +21,6 @@ const start = async () => {
       Bun.cron("0 0 1 * *", async () => {
         await syncLines(titsaLinesProvider, mongoLinesRepository);
         await syncStops(titsaStopsProvider, mongoStopsRepository);
-        // await syncAllLineTimetables(getCurrentMonth());
       });
     }
 

@@ -14,6 +14,7 @@ const findTramByIdRoute = createRoute({
   method: "get",
   path: "/{id}",
   tags: ["Trams"],
+  summary: "Get tram line details",
   request: {
     params: tramParamsSchema,
     query: tramDetailQuerySchema,
@@ -79,7 +80,7 @@ getTramByIdRoute.openapi(findTramByIdRoute, async (c) => {
         ok: false as const,
         error: {
           code: "GET_TRAMS_ID_ERROR",
-          message: "Error trying to find a tra",
+          message: "Error trying to find a tram",
         },
       },
       502,

@@ -14,6 +14,7 @@ const findTramStopDetailsRoute = createRoute({
   method: "get",
   path: "/tram/{id}",
   tags: ["Trams"],
+  summary: "Get tram stop details",
   request: {
     params: StopParamsSchema,
   },

@@ -14,6 +14,7 @@ const findBusStopsRoute = createRoute({
   method: "get",
   path: "/bus",
   tags: ["Stops"],
+  summary: "List bus stops",
   request: {
     query: querySchema.openapi({
       example: 1,
@@ -44,6 +45,7 @@ const findTramStopsRoute = createRoute({
   method: "get",
   path: "/tram",
   tags: ["Trams"],
+  summary: "List tram stops",
   request: {
     query: querySchema.openapi({
       example: 1,

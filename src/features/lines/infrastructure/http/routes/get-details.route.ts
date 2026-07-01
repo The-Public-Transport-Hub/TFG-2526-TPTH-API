@@ -11,6 +11,7 @@ const findLineByIdRoute = createRoute({
   method: "get",
   path: "/{id}",
   tags: ["Lines"],
+  summary: "Get bus line details",
   request: {
     params: lineParamsSchema,
   },

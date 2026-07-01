@@ -12,16 +12,16 @@ export const lineStopSchema = z.object({
   id: z.string().openapi({ example: "4009" }),
   name: z.string().openapi({ example: "ESTACION LA OROTAVA" }),
   order: z.number().openapi({ example: 1 }),
-}).openapi("Line Stop");
+}).openapi("LineStop");
 
 export const lineDirectionSchema = z.object({
   direction: z.enum(["outbound", "inbound"]),
   destination: z.string().openapi({ example: "LA OROTAVA" }),
   stops: z.array(lineStopSchema),
-}).openapi("Line Direction");
+}).openapi("LineDirection");
 
 export const lineDetailSchema = z.object({
   id: z.string().openapi({ example: "108" }),
   name: z.string().openapi({ example: "SANTA CRUZ - LA OROTAVA" }),
   directions: z.array(lineDirectionSchema),
-}).openapi("Line Detail");
+}).openapi("LineDetail");

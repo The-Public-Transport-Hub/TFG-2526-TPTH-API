@@ -11,6 +11,7 @@ const findTramsRoute = createRoute({
   method: "get",
   path: "/",
   tags: ["Trams"],
+  summary: "List tram lines",
   request: {
     query: searchQuerySchema.openapi({
       description: "Search trams by line or destination",

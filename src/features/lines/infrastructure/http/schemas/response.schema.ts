@@ -9,11 +9,11 @@ export const linesResponseSchema = z
     totalPages: z.number(),
     totalResults: z.number()
   })
-  .openapi("Lines Response Schema");
+  .openapi("Lines Response");
 
 export const lineDetailResponseSchema = z
   .object({
     ok: z.literal(true),
     data: lineDetailSchema,
   })
-  .openapi("Line Detail Response Schema");
+  .openapi("Line Details Response");
