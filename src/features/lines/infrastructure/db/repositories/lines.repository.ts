@@ -46,6 +46,8 @@ export const mongoLinesRepository: LinesRepository = {
 
     const docs = await col
       .find(filter)
+      .collation({ locale: "es", numericOrdering: true })
+      .sort({ number: 1 })
       .project({ _id: 0, number: 1, name: 1 })
       .skip(request.skip)
       .limit(request.limit)
